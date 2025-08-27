@@ -106,6 +106,109 @@ El sistema usa el Arduino Explora con sus sensores internos y un sensor de vient
 * Añadir pantalla LCD para interfaz gráfica
 * Más niveles con diferentes umbrales y tiempos
 * Integrar sonido para feedback
+Perfecto, vamos a **precisar y ampliar el PRD** con esa parte importante: la integración con el navegador usando `p5.serialport` y un servidor intermedio en Node.js para leer datos desde Arduino Esplora vía el puerto COM (ej. COM12).
+
+---
+
+## ✍️ Actualización del PRD: **Integración Web con p5.js y Node.js**
+
+---
+
+### 11. **Requerimiento de comunicación serial y visualización web**
+
+---
+
+### ✅ Requerimiento nuevo:
+
+El sistema debe **leer datos en tiempo real desde el Arduino Esplora conectado al PC por un puerto COM (ej. COM12)** y **visualizar el estado del juego en una interfaz web** construida con **p5.js**.
+
+---
+
+### 🔧 Tecnologías requeridas:
+
+| Tecnología                | Uso                                                |
+| ------------------------- | -------------------------------------------------- |
+| **Arduino Esplora**       | Fuente de datos de sensores                        |
+| **Puerto Serial (COM12)** | Canal físico de comunicación Arduino-PC            |
+| **Node.js**               | Servidor intermedio para gestionar datos seriales  |
+| **p5.serialport**         | Biblioteca para comunicar p5.js con Node.js        |
+| **p5.js**                 | Framework para visualizar el juego en el navegador |
+
+---
+
+### 📡 Arquitectura de comunicación:
+
+```plaintext
+[Arduino Esplora] --> [Puerto COM (ej. COM12)] --> [Node.js + p5.serialserver] --> [Navegador con p5.js]
+```
+
+---
+
+### 📋 Nuevos requerimientos funcionales
+
+| ID  | Requerimiento                                                              | Prioridad | Detalles                                                                               |
+| --- | -------------------------------------------------------------------------- | --------- | -------------------------------------------------------------------------------------- |
+| RF6 | El sistema debe enviar datos por Serial desde Arduino                      | Alta      | Datos como voz, temperatura, salto, movimiento deben enviarse como strings formateados |
+| RF7 | El servidor Node.js debe recibir y retransmitir datos seriales a navegador | Alta      | Usar p5.serialserver o `serialport` y `socket.io` para emitir al frontend              |
+| RF8 | El navegador debe visualizar en tiempo real el estado del jugador          | Alta      | Usar p5.js para dibujar elementos como salto, poder, posición, etc.                    |
+
+---
+
+### 🧱 Estructura de los datos enviados por Arduino
+
+Formato ejemplo por línea (JSON o CSV simple):
+
+```plaintext
+PODER:1,TEMP:32.4,SEDE:1,SALTO:0,POS:4
+```
+
+O si se usa JSON:
+
+```json
+{"poder":1,"temp":32.4,"sede":1,"salto":0,"pos":4}
+```
+
+---
+
+### 🌐 Estructura del sistema web
+
+1. **Servidor Node.js**
+
+   * Usa `serialport` para leer del puerto COM (ej. COM12)
+   * Usa `socket.io` para enviar datos al navegador
+
+2. **Navegador (Frontend con p5.js)**
+
+   * Se conecta a través de WebSockets
+   * Dibuja en canvas el estado: salto (salto del sprite), posición, sed (botella), poder (efecto visual)
+
+---
+
+### 🗂️ Estructura del proyecto
+
+```
+/arduino/                   --> Código Arduino (ya provisto)
+/server/
+├── server.js               --> Node.js servidor serial + WebSocket
+├── package.json            --> Dependencias
+/public/
+├── index.html              --> Página web
+├── sketch.js               --> p5.js visualización
+```
+
+---
+
+### 📌 Notas de implementación
+
+* El servidor debe estar corriendo mientras el Arduino está conectado.
+* Asegúrate de tener los permisos adecuados para acceder a COM12.
+* Si el Arduino se desconecta, el servidor debe manejar el error de forma segura.
+
+---
+
+¿Te gustaría que te proporcione también los archivos de ejemplo para `server.js` y el `sketch.js` de p5.js?
+
+Puedo armarte el paquete básico de Node + p5 para que solo tengas que instalar y correr. ¿Te interesa?
 
 ---
 
